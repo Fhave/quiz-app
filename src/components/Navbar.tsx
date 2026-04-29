@@ -8,6 +8,7 @@ type NavItem = {
   path: string;
 };
 
+
 function Navbar(): JSX.Element {
   const location = useLocation();
 
@@ -28,6 +29,7 @@ function Navbar(): JSX.Element {
         left: 0,
         width: '100%',
         zIndex: 100,
+        borderRadius: 0,
       }}
     >
       <Group justify="space-around">
@@ -46,7 +48,7 @@ function Navbar(): JSX.Element {
                 color: 'inherit',
               }}
             >
-              <ActionIcon variant={isActive ? 'filled' : 'subtle'}>
+              <ActionIcon variant={isActive ? 'filled' : 'subtle'} >
                 {item.icon}
               </ActionIcon>
               <Text size="xs">{item.label}</Text>

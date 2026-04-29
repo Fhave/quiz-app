@@ -1,8 +1,10 @@
-import React from 'react'
+import { Container } from "@mantine/core";
 
 function Home() {
   return (
-    <div>Home</div>
+    <Container >
+      <h1>Home</h1>
+    </Container>
   )
 }
 
