@@ -6,12 +6,15 @@ import {
   MantineProvider,
   ColorSchemeScript,
 } from '@mantine/core';
+import { BrowserRouter } from 'react-router-dom';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ColorSchemeScript />
-    <MantineProvider defaultColorScheme="light">
-      <App />
-    </MantineProvider>
+    <BrowserRouter>
+      <ColorSchemeScript />
+      <MantineProvider defaultColorScheme="light">
+        <App />
+      </MantineProvider>
+    </BrowserRouter>
   </StrictMode>,
 )
