@@ -1,7 +1,23 @@
 import { Group, ActionIcon, Text, Stack, Paper } from '@mantine/core';
 import { Home, Users, BarChart, Activity } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
-function Navbar() {
+type NavItem = {
+  label: string;
+  icon: React.ReactNode;
+  path: string;
+};
+
+function Navbar(): JSX.Element {
+  const location = useLocation();
+
+  const navItems: NavItem[] = [
+    { label: 'Sessions', icon: <Home size={20} />, path: '/' },
+    { label: 'Track', icon: <Activity size={20} />, path: '/track' },
+    { label: 'Participants', icon: <Users size={20} />, path: '/participants' },
+    { label: 'Summary', icon: <BarChart size={20} />, path: '/summary' },
+  ];
+
   return (
     <Paper
       shadow="md"
@@ -15,35 +31,28 @@ function Navbar() {
       }}
     >
       <Group justify="space-around">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path;
 
-        <Stack align="center" gap={2}>
-          <ActionIcon variant="subtle">
-            <Home size={20} />
-          </ActionIcon>
-          <Text size="xs">Sessions</Text>
-        </Stack>
-
-        <Stack align="center" gap={2}>
-          <ActionIcon variant="subtle">
-            <Activity size={20} />
-          </ActionIcon>
-          <Text size="xs">Track</Text>
-        </Stack>
-
-        <Stack align="center" gap={2}>
-          <ActionIcon variant="subtle">
-            <Users size={20} />
-          </ActionIcon>
-          <Text size="xs">Participants</Text>
-        </Stack>
-
-        <Stack align="center" gap={2}>
-          <ActionIcon variant="subtle">
-            <BarChart size={20} />
-          </ActionIcon>
-          <Text size="xs">Summary</Text>
-        </Stack>
-
+          return (
+            <Stack
+              key={item.path}
+              align="center"
+              gap={2}
+              component={Link}
+              to={item.path}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
+              <ActionIcon variant={isActive ? 'filled' : 'subtle'}>
+                {item.icon}
+              </ActionIcon>
+              <Text size="xs">{item.label}</Text>
+            </Stack>
+          );
+        })}
       </Group>
     </Paper>
   );

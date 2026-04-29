@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Navbar from './Navbar';
 
-function Layout() {
+function Layout(): JSX.Element {
   return (
     <div
       style={{ minHeight: '100vh' }}
