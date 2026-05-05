@@ -13,7 +13,6 @@ function Header(): JSX.Element {
     <Container size="sm" py="md">
       <Group justify="space-between">
         <Title order={3}>Quiz Tracker</Title>
-
         <ActionIcon variant="subtle" onClick={toggleTheme}>
           {colorScheme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
         </ActionIcon>

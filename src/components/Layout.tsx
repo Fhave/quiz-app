@@ -1,32 +1,42 @@
 import { Outlet } from 'react-router-dom';
-import { useMantineColorScheme } from '@mantine/core';
 import Header from './Header';
 import Navbar from './Navbar';
+import { useMantineColorScheme } from '@mantine/core';
 
 function Layout(): JSX.Element {
   const { colorScheme } = useMantineColorScheme();
 
-  const backgroundColor =
-    colorScheme === 'light' ? '#f3f4f6' : '#0b1220';
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-
-      <div style={{ flexDirection: 'row' }}>
+    <div
+      style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          background:
+            colorScheme === 'dark' ? '#020617' : '#ffffff',
+        }}
+      >
         <Header />
       </div>
-
       <div
         style={{
           flex: 1,
-          backgroundColor,
-          padding: '16px',
           overflowY: 'auto',
+          padding: '16px',
+          paddingBottom: '80px',
+          backgroundColor:
+            colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
         }}
       >
         <Outlet />
       </div>
-
       <Navbar />
     </div>
   );
