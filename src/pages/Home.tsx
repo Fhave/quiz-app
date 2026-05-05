@@ -13,10 +13,16 @@ import {
 } from "@mantine/core";
 import { Edit, X, PlusCircle, CirclePlay } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
+import { useHeader } from '../context/HeaderContext';
 
 function Home(): JSX.Element {
   const [value, setValue] = useState<string>("");
   const { colorScheme } = useMantineColorScheme();
+  const { setTitle } = useHeader();
+
+  useState(() => {
+    setTitle("Quiz Tracker");
+  });
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
