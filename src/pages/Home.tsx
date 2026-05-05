@@ -67,7 +67,7 @@ function Home(): JSX.Element {
         </Group>
       </Stack>
 
-      {[1, 2].map((_, i) => (
+      {Array.from({ length: 2 }).map((_, i) => (
         <Paper
           key={i}
           mt="sm"
