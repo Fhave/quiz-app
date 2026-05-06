@@ -10,6 +10,12 @@ import {
   Stack,
 } from '@mantine/core';
 import { useMantineColorScheme } from '@mantine/core';
+import { CheckCircle, XCircle } from 'lucide-react';
+
+type QuestionResult = {
+  number: number;
+  correct: boolean;
+};
 
 function Participants(): JSX.Element {
   const { setTitle } = useHeader();
@@ -22,6 +28,13 @@ function Participants(): JSX.Element {
   }, [setTitle]);
 
   const participants = Array.from({ length: 3 });
+
+  const results: QuestionResult = [
+    { number: 1, correct: true },
+    { number: 2, correct: false },
+    { number: 5, correct: true },
+    { number: 7, correct: false },
+  ];
 
   return (
     <Container>
@@ -61,7 +74,35 @@ function Participants(): JSX.Element {
                   <Text size="sm" c="dimmed">
                     Questions Answered
                   </Text>
-                  <Text size="sm">1, 2, 5, 7</Text>
+
+                  <Group gap="xs" wrap="wrap">
+                    {results.map((q) => (
+                      <Paper
+                        key={q.number}
+                        px="sm"
+                        py={4}
+                        radius="md"
+                        withBorder
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          backgroundColor:
+                            colorScheme === 'dark' ? '#334155' : '#f1f5f9',
+                        }}
+                      >
+                        <Text size="xs" fw={600}>
+                          {q.number}
+                        </Text>
+
+                        {q.correct ? (
+                          <CheckCircle size={14} color="green" />
+                        ) : (
+                          <XCircle size={14} color="red" />
+                        )}
+                      </Paper>
+                    ))}
+                  </Group>
                 </Stack>
               )}
             </Stack>

@@ -9,16 +9,19 @@ import {
   Badge,
   Paper,
   Button,
-  Box
+  Box,
+  Modal
 } from "@mantine/core";
 import { Edit, X, PlusCircle, CirclePlay } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
 import { useHeader } from '../context/HeaderContext';
+import { useDisclosure } from '@mantine/hooks';
 
 function Home(): JSX.Element {
   const [value, setValue] = useState<string>("");
   const { colorScheme } = useMantineColorScheme();
   const { setTitle } = useHeader();
+  const [opened, { open, close }] = useDisclosure(false);
 
   useState(() => {
     setTitle("Quiz Tracker");
@@ -29,7 +32,7 @@ function Home(): JSX.Element {
   };
 
   return (
-    <Container>
+    <Container pb="60px">
       <Stack
         p="20px"
         style={{
@@ -86,11 +89,17 @@ function Home(): JSX.Element {
         </Paper>
       ))}
 
+      <Modal opened={opened} onClose={close} title="Add Participant" centered>
+        <Input placeholder="Participant Name" mb="20px" />
+        <Button onClick={close}>ADD</Button>
+      </Modal>
+
       <Paper
         mt="sm"
         p="md"
         radius="md"
         withBorder
+        onClick={open}
         style={{
           borderStyle: "dashed",
           textAlign: "center",
@@ -111,9 +120,9 @@ function Home(): JSX.Element {
         style={{
           position: "fixed",
           bottom: "80px",
-          left: 0,
+          left: "-10px",
           width: "100%",
-          padding: '16px',
+          padding: '0 40px',
           zIndex: 20,
         }}
       >
