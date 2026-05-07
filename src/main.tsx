@@ -9,6 +9,7 @@ import {
 import { BrowserRouter } from 'react-router-dom';
 import { HeaderProvider } from './context/HeaderProvider'
 import { Notifications } from '@mantine/notifications';
+import { SessionProvider } from './context/SessionProvider.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')!).render(
       <MantineProvider defaultColorScheme="light">
         <Notifications position="top-right" containerWidth={320}/>
         <HeaderProvider>
-          <App />
+          <SessionProvider>
+            <App />
+          </SessionProvider>
         </HeaderProvider>
       </MantineProvider>
     </BrowserRouter>
