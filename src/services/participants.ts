@@ -12,6 +12,15 @@ export async function createParticipant(participant: Participant): Promise<numbe
   return id;
 }
 
+export async function createParticipants(participants: string[], sessionId: number): Promise<void> {
+  const db = await initDB;
+  const tx = db.transaction('participants', 'readwrite');
+  for (const name of participants) {
+    await tx.store.add({ name, sessionId });
+  }
+  await tx.done;
+}
+
 export async function getParticipants(sessionId: number): Promise<Participant[]> {
   const db = await initDB;
   return db.getAll('participants', { sessionId });

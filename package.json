@@ -12,6 +12,7 @@
   "dependencies": {
     "@mantine/core": "^9.1.1",
     "@mantine/hooks": "^9.1.1",
+    "@mantine/notifications": "^9.1.1",
     "idb": "^8.0.3",
     "lucide-react": "^1.11.0",
     "mini.css": "^3.0.1",
