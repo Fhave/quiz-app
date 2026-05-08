@@ -5,7 +5,7 @@ type Answer = {
   sessionId: number;
   participantId: number;
   questionNumber: number;
-  correct: boolean;
+  answer: string;
   createdAt: number;
 };
 
@@ -18,6 +18,11 @@ export async function createAnswer(answer: Answer): Promise<number> {
 export async function getAnswers(sessionId: number): Promise<Answer[]> {
   const db = await initDB;
   return db.getAll('answers', { sessionId });
+}
+
+export async function getSessionAnswersList( sessionId: number ): Promise<Answer[]> {
+  const db = await initDB;
+  return db.getAllFromIndex("answers", "sessionId", sessionId);
 }
 
 export async function getAnswer(id: number): Promise<Answer | undefined> {
