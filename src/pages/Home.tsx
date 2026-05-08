@@ -11,19 +11,20 @@ import {
   Paper,
   Button,
   Box,
-  Modal
+  Modal,
 } from "@mantine/core";
 import { Edit, X, PlusCircle, CirclePlay } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
-import { useHeader } from '../context/HeaderContext';
-import { useSession } from '../context/SessionContext';
-import { useDisclosure } from '@mantine/hooks';
+import { useHeader } from "../context/HeaderContext";
+import { useSession } from "../context/SessionContext";
+import { useDisclosure } from "@mantine/hooks";
 import { createSession, getSessions } from "../services/sessions";
 import { createParticipants } from "../services/participants";
-import { notifications } from '@mantine/notifications';
+import { getParticipantsBySession } from "../services/participants";
+import { notifications } from "@mantine/notifications";
 
 function Home(): JSX.Element {
-  const [sessionName, setSessionName] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [participant, setParticipant] = useState<string>("");
   const [participants, setParticipants] = useState<string[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -31,7 +32,7 @@ function Home(): JSX.Element {
   const { colorScheme } = useMantineColorScheme();
   const { setTitle } = useHeader();
   const navigate = useNavigate();
-  const { setSessionId, setSessionParticipants } = useSession();
+  const { setSessionId, setSessionName, setSessionParticipants } = useSession();
 
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -48,14 +49,12 @@ function Home(): JSX.Element {
     setTitle("Quiz Tracker");
   }, [setTitle]);
 
-  const handleSessionChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    setSessionName(event.target.value);
+  const handleSessionChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setName(event.target.value);
   };
 
   const handleParticipantChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ): void => {
     setParticipant(event.target.value);
   };
@@ -68,52 +67,76 @@ function Home(): JSX.Element {
   };
 
   const handleRemoveParticipant = (index: number): void => {
-    setParticipants((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setParticipants((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleStartSession = async (): Promise<void> => {
-    if (!sessionName.trim()) {
+    localStorage.clear();
+
+    if (!name.trim()) {
       notifications.show({
-        title: 'Error',
-        message: 'Please add a session name',
-        color: 'red',
+        title: "Error",
+        message: "Please add a session name",
+        color: "red",
       });
       return;
-    };
+    }
 
     if (participants.length === 0) {
       notifications.show({
-        title: 'Error',
-        message: 'Please add at least one participant',
-        color: 'red',
+        title: "Error",
+        message: "Please add at least one participant",
+        color: "red",
       });
       return;
-    };
+    }
 
     try {
-      const session = await createSession(sessionName);
-      await createParticipants(participants, session);
-      setSessionId(session);
-      setSessionParticipants(participants);
-      setSessionName("");
-      setParticipants([]);
-      notifications.show({
-        title: 'Success',
-        message: 'Session created',
-        color: 'green',
-      });
-      return;
+      const sessionId = await createSession(name);
+      const createdParticipants = await createParticipants(
+        participants,
+        sessionId,
+      );
 
-      navigate('/track')
+      setSessionId(sessionId);
+      setSessionName(name);
+      setSessionParticipants(createdParticipants);
+
+      setName("");
+      setParticipants([]);
+
+      notifications.show({
+        title: "Success",
+        message: "Session created",
+        color: "green",
+      });
+
+      navigate("/track");
     } catch (error) {
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: error.message,
-        color: 'red',
+        color: "red",
       });
-      return;
+    }
+  };
+
+  const handleViewSession = async (session: Session) => {
+    localStorage.clear();
+    try {
+      console.log(session)
+      const participants = await getParticipantsBySession(session.id);
+      setSessionId(session.id);
+      setSessionName(session.title);
+      setSessionParticipants(participants);
+
+      navigate("/track");
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: error.message,
+        color: "red",
+      });
     }
   };
 
@@ -140,9 +163,9 @@ function Home(): JSX.Element {
 
         <Input
           placeholder="Session Name"
-          value={sessionName}
+          value={name}
           onChange={handleSessionChange}
-          rightSection={!sessionName ? <Edit size={18} /> : null}
+          rightSection={!name ? <Edit size={18} /> : null}
         />
       </Stack>
 
@@ -150,13 +173,13 @@ function Home(): JSX.Element {
         <Group justify="space-between" align="center">
           <Title order={4}>Current Participants</Title>
 
-          <Badge color="blue" variant="light" size="sm">
+          <Badge color="blue" variant="light">
             {participants.length} ADDED
           </Badge>
         </Group>
       </Stack>
 
-      {participants.map((name, i) => (
+      {participants.map((p, i) => (
         <Paper
           key={i}
           mt="sm"
@@ -164,21 +187,19 @@ function Home(): JSX.Element {
           radius="md"
           withBorder
           style={{
-            backgroundColor:
-              colorScheme === "dark" ? "#1e293b" : "#ffffff",
+            backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff",
           }}
         >
           <Group justify="space-between">
-            <Text>{name}</Text>
-            <X size={18} style={{ cursor: "pointer" }} onClick={() => { handleRemoveParticipant(i) }} />
+            <Text>{p}</Text>
+            <X
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleRemoveParticipant(i)}
+            />
           </Group>
         </Paper>
       ))}
-
-      <Modal opened={opened} onClose={close} title="Add Participant" centered>
-        <Input placeholder="Participant Name" mb="20px" value={participant} onChange={handleParticipantChange} />
-        <Button onClick={handleAddParticipant}>ADD</Button>
-      </Modal>
 
       <Paper
         mt="sm"
@@ -190,8 +211,7 @@ function Home(): JSX.Element {
           borderStyle: "dashed",
           textAlign: "center",
           cursor: "pointer",
-          backgroundColor:
-            colorScheme === "dark" ? "#1e293b" : "#ffffff",
+          backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff",
         }}
       >
         <Group justify="center" gap={6}>
@@ -205,33 +225,43 @@ function Home(): JSX.Element {
       <Stack pt="lg">
         <Title order={4}>Session History</Title>
 
-        {sessions.map((session) => (
-          <Paper
-            key={session.id}
-            p="md"
-            radius="md"
-            withBorder
-            style={{
-              backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff"
-            }}
-          >
-            <Group justify="space-between" align="center">
-              <Stack gap={4}>
-                <Text fw={600}>{session.title}</Text>
-                <Text size="xs" c="dimmed">
-                  {new Date(session.createdAt).toLocaleDateString()}
-                </Text>
-              </Stack>
-
-              <Badge color="blue" variant="light" style={{
-                cursor: "pointer"
+        {sessions.length > 0 ? (
+          sessions.map((session) => (
+            <Paper
+              key={session.id}
+              p="md"
+              radius="md"
+              withBorder
+              style={{
+                backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff",
               }}
-              >
-                VIEW
-              </Badge>
-            </Group>
+            >
+              <Group justify="space-between">
+                <Stack gap={4}>
+                  <Text fw={600}>{session.title}</Text>
+                  <Text size="xs" c="dimmed">
+                    {new Date(session.createdAt).toLocaleDateString()}
+                  </Text>
+                </Stack>
+
+                <Badge
+                  color="blue"
+                  variant="light"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleViewSession(session)}
+                >
+                  VIEW
+                </Badge>
+              </Group>
+            </Paper>
+          ))
+        ) : (
+          <Paper p="md" radius="md" withBorder>
+            <Text size="xs" fw={500} c="dimmed">
+              No sessions found
+            </Text>
           </Paper>
-        ))}
+        )}
       </Stack>
 
       <Box
@@ -240,7 +270,7 @@ function Home(): JSX.Element {
           bottom: "80px",
           left: "-10px",
           width: "100%",
-          padding: '0 40px',
+          padding: "0 40px",
           zIndex: 20,
         }}
       >
@@ -254,6 +284,16 @@ function Home(): JSX.Element {
           Start New Session
         </Button>
       </Box>
+
+      <Modal opened={opened} onClose={close} title="Add Participant" centered>
+        <Input
+          placeholder="Participant Name"
+          mb="20px"
+          value={participant}
+          onChange={handleParticipantChange}
+        />
+        <Button onClick={handleAddParticipant}>ADD</Button>
+      </Modal>
     </Container>
   );
 }

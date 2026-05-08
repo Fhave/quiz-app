@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Stack,
@@ -13,32 +14,98 @@ import {
   SegmentedControl
 } from "@mantine/core";
 import { useHeader } from '../context/HeaderContext';
+import { useSession } from '../context/SessionContext';
+import { getSessionAnswersList, createAnswer } from '../services/answer';
+import { X } from 'lucide-react';
+
+type Participant = {
+  id: number;
+  name: string;
+};
 
 type AnswerType = "correct" | "wrong";
 
 function Track(): JSX.Element {
   const { setTitle } = useHeader();
+  const navigate = useNavigate();
+  const { sessionId, sessionName, sessionParticipants, setSessionAnswers, sessionAnswers } = useSession();
 
+  const [answers, setAnswers] = useState<Record<number, AnswerType>>({});
   const [modal, setModal] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
   const [answer, setAnswer] = useState<AnswerType>("correct");
-  const [selectedParticipant, setSelectedParticipant] = useState<string>('Mary');
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(
+    sessionParticipants[0] || null
+  );
 
   useEffect(() => {
-    setTitle('New Session');
-  }, [setTitle]);
+    if (!sessionName) {
+      navigate('/');
+    }
+    setTitle(sessionName);
+  }, [setTitle, sessionName, navigate]);
+
+  useEffect(() => {
+    const loadAnswers = async (): Promise<void> => {
+      if (!sessionId) return;
+
+      const dbAnswers = await getSessionAnswersList(sessionId);
+
+      const answerMap: Record<number, AnswerType> = {};
+
+      dbAnswers.forEach((answer) => {
+        answerMap[answer.questionNumber] =
+          answer.answer === 'correct' ? 'correct' : 'wrong';
+      });
+
+      setAnswers((prevAnswers) => ({
+        ...prevAnswers,
+        ...answerMap,
+      }));
+    };
+
+    loadAnswers();
+  }, [sessionId, sessionAnswers]);
+
+  const saveAnswer = async () => {
+    if (selectedQuestion !== null) {
+      await createAnswer({ sessionId, participantId: selectedParticipant?.id, questionNumber: selectedQuestion, answer: answer });
+      setSessionAnswers((prev) => [
+        ...prev,
+        {
+          participantId: selectedParticipant.id,
+          questionNumber: selectedQuestion,
+          answer,
+        },
+      ]);
+    }
+  }
+
+  const handleEndSession = async () => {
+    navigate('/participants');
+  }
 
   return (
     <Container>
       <Group justify="space-between">
         <Stack gap="xs">
           <Text size="sm" fw={700} c="dimmed">PROGRESS</Text>
-          <Text size="lg" fw={700}>Answered: 12/50</Text>
+          <Text size="lg" fw={700}>Answered: {Object.keys(answers).length}/50</Text>
         </Stack>
         <NativeSelect
-          value={selectedParticipant}
-          onChange={(event) => setSelectedParticipant(event.currentTarget.value)}
-          data={['Mary', 'Dick', 'Susan', 'Vance']}
+          value={selectedParticipant?.id.toString()}
+          onChange={(event) => {
+            const participant = sessionParticipants.find(
+              (p) => p.id.toString() === event.currentTarget.value
+            );
+            if (participant) {
+              setSelectedParticipant(participant);
+            }
+          }}
+          data={sessionParticipants.map((participant) => ({
+            value: participant.id.toString(),
+            label: participant.name,
+          }))}
         />
       </Group>
 
@@ -53,7 +120,7 @@ function Track(): JSX.Element {
           {Array.from({ length: 50 }).map((_, i) => (
             <ActionIcon
               key={i}
-              variant={i < 12 ? "filled" : "light"}
+              variant={"light"}
               radius="md"
               onClick={() => {
                 setSelectedQuestion(i + 1);
@@ -64,6 +131,14 @@ function Track(): JSX.Element {
                   flex: '0 0 calc(20% - var(--mantine-spacing-xs) * 0.8)',
                   aspectRatio: '1 / 1',
                   height: 'auto',
+                  backgroundColor:
+                    answers[i + 1] === 'correct'
+                      ? 'green'
+                      : answers[i + 1] === 'wrong'
+                        ? 'red'
+                        : undefined,
+                  color:
+                    answers[i + 1] ? 'white' : undefined,
                 },
               }}
             >
@@ -73,7 +148,7 @@ function Track(): JSX.Element {
         </Flex>
       </Box>
 
-      {modal && (
+      {(modal && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
         <Paper
           style={{
             position: "fixed",
@@ -85,8 +160,13 @@ function Track(): JSX.Element {
             borderTopRadius: '20px',
           }}
         >
-          <Text size='md' fw={700}>Question {selectedQuestion}</Text>
-          <Text mb="15px">{selectedParticipant}</Text>
+          <Group justify="space-between">
+            <Text size='md' fw={700}>Question {selectedQuestion}</Text>
+            <X size={20} onClick={() => setModal(false)} style={{
+              cursor: "pointer"
+            }} />
+          </Group>
+          <Text mb="15px">{selectedParticipant?.name}</Text>
           <SegmentedControl
             fullWidth
             value={answer}
@@ -96,11 +176,28 @@ function Track(): JSX.Element {
               { label: "Wrong", value: "wrong" },
             ]}
           />
-          <Button fullWidth color="blue" mt="md" onClick={() => setModal(false)}>
+          <Button fullWidth color="blue" mt="md" onClick={() => {
+            setModal(false);
+            setAnswers(prevAnswers => ({
+              ...prevAnswers,
+              [selectedQuestion]: answer,
+            }));
+            saveAnswer();
+          }}>
             Submit & Lock
           </Button>
         </Paper>
       )}
+
+      <Group mt="md" justify="right">
+        <Button
+          color="blue"
+          size="lg"
+          onClick={handleEndSession}
+        >
+          End Session
+        </Button>
+      </Group>
     </Container>
   )
 }
