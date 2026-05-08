@@ -6,10 +6,18 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ["**/*"],
+      },
+      includeAssets: [
+        "**/*",
+      ],
+      // registerType: 'autoUpdate',
       manifest: {
         name: 'Quiz Tracker',
         short_name: 'QuizTracker',
+        description: 'Track your quiz answers.',
+        scope: '/',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
