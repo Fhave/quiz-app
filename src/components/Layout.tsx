@@ -3,7 +3,7 @@ import Header from './Header';
 import Navbar from './Navbar';
 import { useMantineColorScheme } from '@mantine/core';
 
-function Layout(): JSX.Element {
+function Layout() {
   const { colorScheme } = useMantineColorScheme();
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -20,10 +20,11 @@ import { useSession } from "../context/SessionContext";
 import { useDisclosure } from "@mantine/hooks";
 import { createSession, getSessions } from "../services/sessions";
 import { createParticipants } from "../services/participants";
-import { getParticipantsBySession } from "../services/participants";
+import { getParticipants } from "../services/participants";
 import { notifications } from "@mantine/notifications";
+import { type Session } from "../type";
 
-function Home(): JSX.Element {
+function Home() {
   const [name, setName] = useState<string>("");
   const [participant, setParticipant] = useState<string>("");
   const [participants, setParticipants] = useState<string[]>([]);
@@ -115,7 +116,7 @@ function Home(): JSX.Element {
     } catch (error) {
       notifications.show({
         title: "Error",
-        message: error.message,
+        message: (error as Error).message,
         color: "red",
       });
     }
@@ -124,8 +125,7 @@ function Home(): JSX.Element {
   const handleViewSession = async (session: Session) => {
     localStorage.clear();
     try {
-      console.log(session)
-      const participants = await getParticipantsBySession(session.id);
+      const participants = await getParticipants(session.id);
       setSessionId(session.id);
       setSessionName(session.title);
       setSessionParticipants(participants);
@@ -134,7 +134,7 @@ function Home(): JSX.Element {
     } catch (error) {
       notifications.show({
         title: "Error",
-        message: error.message,
+        message: (error as Error).message,
         color: "red",
       });
     }

@@ -13,41 +13,44 @@ import {
 import { useMantineColorScheme } from "@mantine/core";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useSession } from "../context/SessionContext";
-import { getParticipantsBySession } from "../services/participants";
-import { getSessionAnswersList } from "../services/answer";
+import { getParticipants } from "../services/participants";
+import { getAnswers } from "../services/answer";
 import { notifications } from "@mantine/notifications";
+import { type SessionAnswer, type AnswerType } from "../type";
 
-function Participants(): JSX.Element {
+function Participants() {
   const { setTitle } = useHeader();
   const navigate = useNavigate();
   const { sessionId, sessionName, sessionParticipants, setSessionParticipants, sessionAnswers, setSessionAnswers } = useSession();
   const { colorScheme } = useMantineColorScheme();
-  console.log(sessionId)
 
   const [selectedParticipant, setSelectedParticipant] = useState<number | null>(
     null,
   );
 
   useEffect(() => {
-    if (!sessionName) {
+    if (!sessionId) {
       navigate('/');
       return;
     }
 
     setTitle(sessionName);
 
-
     const fetchParticipants = async () => {
       try {
-        const participants = await getParticipantsBySession(sessionId);
-        const dbAnswers = await getSessionAnswersList(sessionId);
-        console.log(dbAnswers)
+        const participants = await getParticipants(sessionId);
+        const dbAnswers = await getAnswers(sessionId);
+        const sessionAnswers: SessionAnswer[] = dbAnswers.map(answer => ({
+          participantId: answer.participantId,
+          questionNumber: answer.questionNumber,
+          answer: answer.answer as AnswerType
+        }));
         setSessionParticipants(participants);
-        setSessionAnswers(dbAnswers)
+        setSessionAnswers(sessionAnswers)
       } catch (error) {
         notifications.show({
           title: "Error",
-          message: error.message,
+          message: (error as Error).message,
           color: "red",
         });
       }

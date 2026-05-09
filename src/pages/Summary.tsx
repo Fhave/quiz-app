@@ -18,7 +18,7 @@ import { Trophy } from 'lucide-react';
 import { useMantineColorScheme } from '@mantine/core';
 import { useSession } from '../context/SessionContext';
 
-function Summary(): JSX.Element {
+function Summary() {
   const { setTitle } = useHeader();
 
   const navigate = useNavigate();

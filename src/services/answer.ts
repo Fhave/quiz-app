@@ -1,28 +1,15 @@
 import { initDB } from "./db";
-
-type Answer = {
-  id: number;
-  sessionId: number;
-  participantId: number;
-  questionNumber: number;
-  answer: string;
-  createdAt: number;
-};
+import { type Answer } from "../type";
 
 export async function createAnswer(answer: Answer): Promise<number> {
   const db = await initDB;
   const id = await db.add('answers', answer);
-  return id;
+  return Number(id);
 }
 
 export async function getAnswers(sessionId: number): Promise<Answer[]> {
   const db = await initDB;
-  return db.getAll('answers', { sessionId });
-}
-
-export async function getSessionAnswersList( sessionId: number ): Promise<Answer[]> {
-  const db = await initDB;
-  return db.getAllFromIndex("answers", "sessionId", sessionId);
+  return db.getAllFromIndex('answers', 'sessionId', sessionId);
 }
 
 export async function getAnswer(id: number): Promise<Answer | undefined> {

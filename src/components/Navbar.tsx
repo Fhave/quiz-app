@@ -1,15 +1,9 @@
 import { Group, ActionIcon, Text, Stack, Paper } from '@mantine/core';
 import { Home, Users, BarChart, Activity } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { type NavItem } from '../type';
 
-type NavItem = {
-  label: string;
-  icon: React.ReactNode;
-  path: string;
-};
-
-
-function Navbar(): JSX.Element {
+function Navbar() {
   const location = useLocation();
 
   const navItems: NavItem[] = [
@@ -37,22 +31,29 @@ function Navbar(): JSX.Element {
           const isActive = location.pathname === item.path;
 
           return (
-            <Stack
+            <Link
               key={item.path}
-              align="center"
-              gap={2}
-              component={Link}
               to={item.path}
               style={{
                 textDecoration: 'none',
                 color: 'inherit',
               }}
             >
-              <ActionIcon variant={isActive ? 'filled' : 'subtle'} >
-                {item.icon}
-              </ActionIcon>
-              <Text size="xs">{item.label}</Text>
-            </Stack>
+              <Stack
+                align="center"
+                gap={2}
+              >
+                <ActionIcon
+                  variant={isActive ? 'filled' : 'subtle'}
+                >
+                  {item.icon}
+                </ActionIcon>
+
+                <Text size="xs">
+                  {item.label}
+                </Text>
+              </Stack>
+            </Link>
           );
         })}
       </Group>

@@ -15,17 +15,11 @@ import {
 } from "@mantine/core";
 import { useHeader } from '../context/HeaderContext';
 import { useSession } from '../context/SessionContext';
-import { getSessionAnswersList, createAnswer } from '../services/answer';
+import { getAnswers, createAnswer } from '../services/answer';
 import { X } from 'lucide-react';
+import type { SessionParticipant, AnswerType, Answer } from '../type';
 
-type Participant = {
-  id: number;
-  name: string;
-};
-
-type AnswerType = "correct" | "wrong";
-
-function Track(): JSX.Element {
+function Track() {
   const { setTitle } = useHeader();
   const navigate = useNavigate();
   const { sessionId, sessionName, sessionParticipants, setSessionAnswers, sessionAnswers } = useSession();
@@ -34,7 +28,7 @@ function Track(): JSX.Element {
   const [modal, setModal] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
   const [answer, setAnswer] = useState<AnswerType>("correct");
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(
+  const [selectedParticipant, setSelectedParticipant] = useState<SessionParticipant | null>(
     sessionParticipants[0] || null
   );
 
@@ -49,7 +43,7 @@ function Track(): JSX.Element {
     const loadAnswers = async (): Promise<void> => {
       if (!sessionId) return;
 
-      const dbAnswers = await getSessionAnswersList(sessionId);
+      const dbAnswers = await getAnswers(sessionId);
 
       const answerMap: Record<number, AnswerType> = {};
 
@@ -58,26 +52,31 @@ function Track(): JSX.Element {
           answer.answer === 'correct' ? 'correct' : 'wrong';
       });
 
-      setAnswers((prevAnswers) => ({
-        ...prevAnswers,
-        ...answerMap,
-      }));
+      setAnswers(answerMap);
     };
 
     loadAnswers();
-  }, [sessionId, sessionAnswers]);
+  }, [sessionId]);
 
   const saveAnswer = async () => {
-    if (selectedQuestion !== null) {
-      await createAnswer({ sessionId, participantId: selectedParticipant?.id, questionNumber: selectedQuestion, answer: answer });
-      setSessionAnswers((prev) => [
+    if (selectedQuestion !== null && selectedParticipant && sessionId !== null && selectedParticipant.id !== undefined) {
+      const answerData: Answer = {
+        sessionId,
+        participantId: selectedParticipant.id,
+        questionNumber: selectedQuestion,
+        answer,
+        createdAt: Date.now()
+      };
+      await createAnswer(answerData as Answer);
+      setSessionAnswers([...sessionAnswers, {
+        participantId: selectedParticipant.id,
+        questionNumber: selectedQuestion,
+        answer,
+      }]);
+      setAnswers(prev => ({
         ...prev,
-        {
-          participantId: selectedParticipant.id,
-          questionNumber: selectedQuestion,
-          answer,
-        },
-      ]);
+        [selectedQuestion]: answer
+      }));
     }
   }
 
@@ -90,20 +89,20 @@ function Track(): JSX.Element {
       <Group justify="space-between">
         <Stack gap="xs">
           <Text size="sm" fw={700} c="dimmed">PROGRESS</Text>
-          <Text size="lg" fw={700}>Answered: {Object.keys(answers).length}/50</Text>
+          <Text size="lg" fw={700}>Answered: {Object.keys(answers).length}/25</Text>
         </Stack>
         <NativeSelect
-          value={selectedParticipant?.id.toString()}
+          value={selectedParticipant?.id?.toString() ?? ''}
           onChange={(event) => {
             const participant = sessionParticipants.find(
-              (p) => p.id.toString() === event.currentTarget.value
+              (p) => p.id?.toString() === event.currentTarget.value
             );
             if (participant) {
               setSelectedParticipant(participant);
             }
           }}
           data={sessionParticipants.map((participant) => ({
-            value: participant.id.toString(),
+            value: participant.id?.toString() ?? '',
             label: participant.name,
           }))}
         />
@@ -117,7 +116,7 @@ function Track(): JSX.Element {
           direction="row"
           wrap="wrap"
         >
-          {Array.from({ length: 50 }).map((_, i) => (
+          {Array.from({ length: 25 }).map((_, i) => (
             <ActionIcon
               key={i}
               variant={"light"}
@@ -148,7 +147,7 @@ function Track(): JSX.Element {
         </Flex>
       </Box>
 
-      {(modal && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
+      {(modal && selectedQuestion !== null && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
         <Paper
           style={{
             position: "fixed",
@@ -178,10 +177,6 @@ function Track(): JSX.Element {
           />
           <Button fullWidth color="blue" mt="md" onClick={() => {
             setModal(false);
-            setAnswers(prevAnswers => ({
-              ...prevAnswers,
-              [selectedQuestion]: answer,
-            }));
             saveAnswer();
           }}>
             Submit & Lock

@@ -1,10 +1,5 @@
 import { initDB } from './db';
-
-export type Session = {
-  id?: number;
-  title: string;
-  createdAt: number;
-};
+import { type Session } from '../type';
 
 export async function createSession(title: string): Promise<number> {
   const db = await initDB;
@@ -12,7 +7,7 @@ export async function createSession(title: string): Promise<number> {
     title,
     createdAt: Date.now(),
   });
-  return id;
+  return Number(id);
 }
 
 export async function getSessions(): Promise<Session[]> {

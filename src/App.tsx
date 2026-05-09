@@ -5,7 +5,7 @@ import Track from './pages/Track';
 import Participants from './pages/Participants';
 import Summary from './pages/Summary';
 
-function App(): JSX.Element {
+function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

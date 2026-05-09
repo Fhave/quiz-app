@@ -3,7 +3,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useMantineColorScheme } from '@mantine/core';
 import { useHeader } from '../context/HeaderContext';
 
-function Header(): JSX.Element {
+function Header() {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const { title } = useHeader();
 

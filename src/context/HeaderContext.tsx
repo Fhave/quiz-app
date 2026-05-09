@@ -1,9 +1,5 @@
 import { createContext, useContext } from 'react';
-
-export type HeaderContextType = {
-  title: string;
-  setTitle: (title: string) => void;
-};
+import { type HeaderContextType } from '../type';
 
 export const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
 

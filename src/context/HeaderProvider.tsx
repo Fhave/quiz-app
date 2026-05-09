@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { HeaderContext } from './HeaderContext';
 
 export function HeaderProvider({ children }: { children: ReactNode }) {

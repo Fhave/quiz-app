@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ColorSchemeScript />
       <MantineProvider defaultColorScheme="light">
-        <Notifications position="top-right" containerWidth={320}/>
+        <Notifications position="top-right" containerWidth={320} />
         <HeaderProvider>
           <SessionProvider>
             <App />

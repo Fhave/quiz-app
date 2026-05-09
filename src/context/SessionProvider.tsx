@@ -1,17 +1,6 @@
 import { useState, useEffect } from "react";
 import { SessionContext } from "./SessionContext";
-
-type Participant = {
-  id: number;
-  name: string;
-  sessionId: number;
-};
-
-type SessionAnswer = {
-  participantId: number;
-  questionNumber: number;
-  answer: "correct" | "wrong";
-};
+import { type SessionAnswer, type SessionParticipant } from "../type";
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [sessionId, setSessionId] = useState<number | null>(() => {
@@ -23,7 +12,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return localStorage.getItem("sessionName") || "";
   });
 
-  const [sessionParticipants, setSessionParticipants] = useState<Participant[]>(
+  const [sessionParticipants, setSessionParticipants] = useState<SessionParticipant[]>(
     () => {
       const stored = localStorage.getItem("sessionParticipants");
       return stored ? JSON.parse(stored) : [];
