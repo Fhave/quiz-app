@@ -15,7 +15,6 @@
     "@mantine/notifications": "^9.1.1",
     "idb": "^8.0.3",
     "lucide-react": "^1.11.0",
-    "mini.css": "^3.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",
@@ -31,6 +30,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^7.3.2"

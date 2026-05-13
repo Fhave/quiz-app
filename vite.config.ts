@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from "rollup-plugin-visualizer"
 
 export default defineConfig({
   plugins: [
@@ -8,6 +9,7 @@ export default defineConfig({
     VitePWA({
       workbox: {
         globPatterns: ["**/*"],
+        cleanupOutdatedCaches: true
       },
       includeAssets: [
         "**/*",
@@ -24,12 +26,13 @@ export default defineConfig({
         theme_color: '#000000',
         icons: [
           {
-            src: '/icons.png',
+            src: '/icons.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg'
           }
         ]
       }
-    })
+    }),
+    visualizer({ open: true })
   ]
 })
