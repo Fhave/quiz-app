@@ -28,60 +28,64 @@ function Layout() {
       >
         <Header />
       </div>
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          overflow: 'hidden',
-        }}
-      >
-        {isLargeScreen ? (
-          <>
-            <Sidebar
-              style={{
-                width: 250,
-                backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
-                borderRight: colorScheme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
-              }}
-            />
-            <div
-              style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '16px',
-                paddingBottom: '64px', // Reduced from 80px to account for button
-                backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
-              }}
-            >
-              <Outlet />
-            </div>
-          </>
-        ) : (
-          <div
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: '16px',
-              paddingBottom: '80px',
-              backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
-            }}
-          >
-            <Outlet />
-          </div>
-        )}
-      </div>
-      {isLargeScreen ? null : (
-        <Navbar
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            zIndex: 900,
-            backgroundColor: colorScheme === 'dark' ? '#020617' : '#ffffff',
-          }}
-        />
-      )}
+       <div
+         style={{
+           flex: 1,
+           display: 'flex',
+           overflow: 'hidden',
+         }}
+       >
+         {isLargeScreen ? (
+           <>
+             <div
+               style={{
+                 width: 250,
+                 backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
+                 borderRight: colorScheme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+               }}
+             >
+               <Sidebar />
+             </div>
+             <div
+               style={{
+                 flex: 1,
+                 overflowY: 'auto',
+                 padding: '16px',
+                 paddingBottom: '64px', // Reduced from 80px to account for button
+                 backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
+               }}
+             >
+               <Outlet />
+             </div>
+           </>
+         ) : (
+           <div
+             style={{
+               flex: 1,
+               overflowY: 'auto',
+               padding: '16px',
+               paddingBottom: '80px',
+               backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
+             }}
+           >
+             <Outlet />
+           </div>
+         )}
+       </div>
+       {isLargeScreen ? null : (
+         <div
+           style={{
+             position: 'fixed',
+             bottom: 0,
+             left: 0,
+             width: '100%',
+             zIndex: 900,
+             backgroundColor: colorScheme === 'dark' ? '#020617' : '#ffffff',
+           }}
+         >
+           <Navbar />
+         </div>
+       )}
     </div>
   );
 }

@@ -39,15 +39,15 @@ function Sidebar() {
                 color: 'inherit',
               }}
             >
-              <Stack
-                align="center"
-                gap={3}
-                p="xs"
-                radius="md"
-                style={{
-                  backgroundColor: isActive ? (colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : 'transparent',
-                }}
-              >
+               <Stack
+                 align="center"
+                 gap={3}
+                 p="xs"
+                 style={{
+                   backgroundColor: isActive ? (colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : 'transparent',
+                   borderRadius: 'md',
+                 }}
+               >
                 <ActionIcon
                   variant={isActive ? 'filled' : 'subtle'}
                   size="lg"
