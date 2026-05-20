@@ -17,7 +17,7 @@ import { Edit, X, PlusCircle, CirclePlay } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
 import { useHeader } from "../context/HeaderContext";
 import { useSession } from "../context/SessionContext";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { createSession, getSessions } from "../services/sessions";
 import { createParticipants } from "../services/participants";
 import { getParticipants } from "../services/participants";
@@ -34,6 +34,7 @@ function Home() {
   const { setTitle } = useHeader();
   const navigate = useNavigate();
   const { setSessionId, setSessionName, setSessionParticipants } = useSession();
+  const isLargeScreen = useMediaQuery('(min-width: 768px)');
 
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -264,26 +265,48 @@ function Home() {
         )}
       </Stack>
 
-      <Box
-        style={{
-          position: "fixed",
-          bottom: "80px",
-          left: "-10px",
-          width: "100%",
-          padding: "0 40px",
-          zIndex: 20,
-        }}
-      >
-        <Button
-          fullWidth
-          color="blue"
-          size="lg"
-          leftSection={<CirclePlay size={18} />}
-          onClick={handleStartSession}
-        >
-          Start New Session
-        </Button>
-      </Box>
+       {isLargeScreen ? (
+         <Box
+           style={{
+             position: "absolute",
+             bottom: "24px",
+             left: "274px", // 250px sidebar + 24px margin
+             right: "24px",
+             zIndex: 20,
+           }}
+         >
+           <Button
+             fullWidth
+             color="blue"
+             size="lg"
+             leftSection={<CirclePlay size={18} />}
+             onClick={handleStartSession}
+           >
+             Start New Session
+           </Button>
+         </Box>
+       ) : (
+         <Box
+           style={{
+             position: "fixed",
+             bottom: "80px",
+             left: "-10px",
+             width: "100%",
+             padding: "0 40px",
+             zIndex: 20,
+           }}
+         >
+           <Button
+             fullWidth
+             color="blue"
+             size="lg"
+             leftSection={<CirclePlay size={18} />}
+             onClick={handleStartSession}
+           >
+             Start New Session
+           </Button>
+         </Box>
+       )}
 
       <Modal opened={opened} onClose={close} title="Add Participant" centered>
         <Input

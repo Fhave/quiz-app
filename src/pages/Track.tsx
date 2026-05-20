@@ -18,6 +18,7 @@ import { useSession } from '../context/SessionContext';
 import { getAnswers, createAnswer } from '../services/answer';
 import { X } from 'lucide-react';
 import type { SessionParticipant, AnswerType, Answer } from '../type';
+import { useMediaQuery } from "@mantine/hooks";
 
 function Track() {
   const { setTitle } = useHeader();
@@ -31,6 +32,8 @@ function Track() {
   const [selectedParticipant, setSelectedParticipant] = useState<SessionParticipant | null>(
     sessionParticipants[0] || null
   );
+
+  const isLargeScreen = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
     if (!sessionName) {
@@ -147,42 +150,52 @@ function Track() {
         </Flex>
       </Box>
 
-      {(modal && selectedQuestion !== null && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
-        <Paper
-          style={{
-            position: "fixed",
-            bottom: "60px",
-            left: 0,
-            width: "100%",
-            padding: '16px',
-            zIndex: 20,
-            borderTopRadius: '20px',
-          }}
-        >
-          <Group justify="space-between">
-            <Text size='md' fw={700}>Question {selectedQuestion}</Text>
-            <X size={20} onClick={() => setModal(false)} style={{
-              cursor: "pointer"
-            }} />
-          </Group>
-          <Text mb="15px">{selectedParticipant?.name}</Text>
-          <SegmentedControl
-            fullWidth
-            value={answer}
-            onChange={(val) => setAnswer(val as "correct" | "wrong")}
-            data={[
-              { label: "Correct", value: "correct" },
-              { label: "Wrong", value: "wrong" },
-            ]}
-          />
-          <Button fullWidth color="blue" mt="md" onClick={() => {
-            setModal(false);
-            saveAnswer();
-          }}>
-            Submit & Lock
-          </Button>
-        </Paper>
-      )}
+       {(modal && selectedQuestion !== null && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
+         <Paper
+           style={{
+             position: "fixed",
+             ...(isLargeScreen ? {
+               top: "50%",
+               left: "50%",
+               transform: "translate(-50%, -50%)",
+               width: "400px",
+               height: "auto",
+               borderRadius: '20px',
+             } : {
+               bottom: "60px",
+               left: 0,
+               width: "100%",
+               padding: '16px',
+               borderTopRadius: '20px',
+             }),
+             padding: isLargeScreen ? '24px' : '16px',
+             zIndex: 20,
+           }}
+         >
+           <Group justify="space-between">
+             <Text size='md' fw={700}>Question {selectedQuestion}</Text>
+             <X size={20} onClick={() => setModal(false)} style={{
+               cursor: "pointer"
+             }} />
+           </Group>
+           <Text mb="15px">{selectedParticipant?.name}</Text>
+           <SegmentedControl
+             fullWidth
+             value={answer}
+             onChange={(val) => setAnswer(val as "correct" | "wrong")}
+             data={[
+               { label: "Correct", value: "correct" },
+               { label: "Wrong", value: "wrong" },
+             ]}
+           />
+           <Button fullWidth color="blue" mt="md" onClick={() => {
+             setModal(false);
+             saveAnswer();
+           }}>
+             Submit & Lock
+           </Button>
+         </Paper>
+       )}
 
       <Group mt="md" justify="right">
         <Button
