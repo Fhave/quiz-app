@@ -2,7 +2,7 @@ import { initDB } from "./db";
 import { type SessionParticipant } from "../type";
 
 export async function createParticipant(participant: SessionParticipant): Promise<number> {
-  const db = await initDB;
+  const db = await initDB();
   const id = await db.add('participants', participant);
   return Number(id);
 }

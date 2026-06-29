@@ -44,7 +44,7 @@ function Home() {
   const isLargeScreen = useMediaQuery('(min-width: 768px)');
 
   const [opened, { open, close }] = useDisclosure(false);
-  const [questionCount, setQuestionCount] = useState<number | null>(null);
+  const [questionCount, setQuestionCount] = useState<number>(1);
 
   useEffect(() => {
     const loadSessions = async (): Promise<void> => {
@@ -92,7 +92,9 @@ function Home() {
       return;
     }
 
-    if (!questionCount || questionCount < 1) {
+    const questionCountNumber = Number(questionCount);
+
+    if (Number.isNaN(questionCountNumber) || questionCountNumber < 1) {
       notifications.show({
         title: "Error",
         message: "Please set the number of questions",
@@ -111,7 +113,8 @@ function Home() {
     }
 
     try {
-      const sessionId = await createSession(name, questionCount);
+      const sessionId = await createSession(name, questionCountNumber);
+
       const createdParticipants = await createParticipants(
         participants,
         sessionId,
@@ -120,11 +123,12 @@ function Home() {
       setSessionId(sessionId);
       setSessionName(name);
       setSessionParticipants(createdParticipants);
-      setSessionQuestionCount(questionCount);
+      setSessionQuestionCount(questionCountNumber);
       setSessionEnded(false);
 
       setName("");
       setParticipants([]);
+      setQuestionCount(1);
 
       notifications.show({
         title: "Success",
@@ -203,10 +207,17 @@ function Home() {
           min={1}
           max={100}
           step={1}
-          onChange={(value) => setQuestionCount(value)}
-          parser={(value) => value?.replace(/\D/g, '') ?? ''}
-          formatter={(value) => value?.toString() ?? ''}
+          allowDecimal={false}
+          allowNegative={false}
           placeholder="Enter number of questions"
+          onChange={(value) => {
+            if (typeof value === "number") {
+              setQuestionCount(value);
+            } else if (typeof value === "string") {
+              const parsed = Number(value);
+              setQuestionCount(Number.isNaN(parsed) ? 0 : parsed);
+            }
+          }}
         />
       </Stack>
 
@@ -310,48 +321,48 @@ function Home() {
         )}
       </Stack>
 
-       {isLargeScreen ? (
-         <Box
-           style={{
-             position: "absolute",
-             bottom: "24px",
-             left: "274px",
-             right: "24px",
-             zIndex: 20,
-           }}
-         >
-           <Button
-             fullWidth
-             color="blue"
-             size="lg"
-             leftSection={<CirclePlay size={18} />}
-             onClick={handleStartSession}
-           >
-             Start New Session
-           </Button>
-         </Box>
-       ) : (
-         <Box
-           style={{
-             position: "fixed",
-             bottom: "80px",
-             left: "-10px",
-             width: "100%",
-             padding: "0 40px",
-             zIndex: 20,
-           }}
-         >
-           <Button
-             fullWidth
-             color="blue"
-             size="lg"
-             leftSection={<CirclePlay size={18} />}
-             onClick={handleStartSession}
-           >
-             Start New Session
-           </Button>
-         </Box>
-       )}
+      {isLargeScreen ? (
+        <Box
+          style={{
+            position: "absolute",
+            bottom: "24px",
+            left: "274px",
+            right: "24px",
+            zIndex: 20,
+          }}
+        >
+          <Button
+            fullWidth
+            color="blue"
+            size="lg"
+            leftSection={<CirclePlay size={18} />}
+            onClick={handleStartSession}
+          >
+            Start New Session
+          </Button>
+        </Box>
+      ) : (
+        <Box
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            left: "-10px",
+            width: "100%",
+            padding: "0 40px",
+            zIndex: 20,
+          }}
+        >
+          <Button
+            fullWidth
+            color="blue"
+            size="lg"
+            leftSection={<CirclePlay size={18} />}
+            onClick={handleStartSession}
+          >
+            Start New Session
+          </Button>
+        </Box>
+      )}
 
       <Modal opened={opened} onClose={close} title="Add Participant" centered>
         <Input
