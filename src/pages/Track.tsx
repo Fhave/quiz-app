@@ -16,6 +16,7 @@ import {
 import { useHeader } from '../context/HeaderContext';
 import { useSession } from '../context/SessionContext';
 import { getAnswers, createAnswer } from '../services/answer';
+import { updateSession } from '../services/sessions';
 import { X } from 'lucide-react';
 import type { SessionParticipant, AnswerType, Answer } from '../type';
 import { useMediaQuery } from "@mantine/hooks";
@@ -28,7 +29,9 @@ function Track() {
     sessionName,
     sessionParticipants,
     sessionQuestionCount,
+    sessionEnded,
     setSessionAnswers,
+    setSessionEnded,
     sessionAnswers,
   } = useSession();
 
@@ -69,6 +72,7 @@ function Track() {
   }, [sessionId]);
 
   const saveAnswer = async () => {
+    if (sessionEnded) return;
     if (selectedQuestion !== null && selectedParticipant && sessionId !== null && selectedParticipant.id !== undefined) {
       const answerData: Answer = {
         sessionId,
@@ -87,12 +91,25 @@ function Track() {
         ...prev,
         [selectedQuestion]: answer
       }));
+
+      const currentIndex = sessionParticipants.findIndex(
+        (participant) => participant.id === selectedParticipant.id,
+      );
+
+      if (currentIndex !== -1 && sessionParticipants.length > 0) {
+        const nextIndex = (currentIndex + 1) % sessionParticipants.length;
+        setSelectedParticipant(sessionParticipants[nextIndex]);
+      }
     }
   }
 
   const handleEndSession = async () => {
+    if (sessionId) {
+      await updateSession(sessionId, { ended: true });
+      setSessionEnded(true);
+    }
     navigate('/participants');
-  }
+  };
 
   const questionCount = sessionQuestionCount;
 
@@ -136,6 +153,7 @@ function Track() {
               variant={"light"}
               radius="md"
               onClick={() => {
+                if (sessionEnded) return;
                 setSelectedQuestion(i + 1);
                 setModal(true);
               }}
@@ -161,62 +179,78 @@ function Track() {
         </Flex>
       </Box>
 
-       {(modal && selectedQuestion !== null && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
-         <Paper
-           style={{
-             position: "fixed",
-             ...(isLargeScreen ? {
-               top: "50%",
-               left: "50%",
-               transform: "translate(-50%, -50%)",
-               width: "400px",
-               height: "auto",
-               borderRadius: '20px',
-             } : {
-               bottom: "60px",
-               left: 0,
-               width: "100%",
-               padding: '16px',
-               borderTopRadius: '20px',
-             }),
-             padding: isLargeScreen ? '24px' : '16px',
-             zIndex: 20,
-           }}
-         >
-           <Group justify="space-between">
-             <Text size='md' fw={700}>Question {selectedQuestion}</Text>
-             <X size={20} onClick={() => setModal(false)} style={{
-               cursor: "pointer"
-             }} />
-           </Group>
-           <Text mb="15px">{selectedParticipant?.name}</Text>
-           <SegmentedControl
-             fullWidth
-             value={answer}
-             onChange={(val) => setAnswer(val as "correct" | "wrong")}
-             data={[
-               { label: "Correct", value: "correct" },
-               { label: "Wrong", value: "wrong" },
-             ]}
-           />
-           <Button fullWidth color="blue" mt="md" onClick={() => {
-             setModal(false);
-             saveAnswer();
-           }}>
-             Submit & Lock
-           </Button>
-         </Paper>
-       )}
-
-      <Group mt="md" justify="right">
-        <Button
-          color="blue"
-          size="lg"
-          onClick={handleEndSession}
+      {(modal && selectedQuestion !== null && !Object.prototype.hasOwnProperty.call(answers, selectedQuestion)) && (
+        <Paper
+          style={{
+            position: "fixed",
+            ...(isLargeScreen ? {
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "400px",
+              height: "auto",
+              borderRadius: '20px',
+            } : {
+              bottom: "60px",
+              left: 0,
+              width: "100%",
+              padding: '16px',
+              borderTopRadius: '20px',
+            }),
+            padding: isLargeScreen ? '24px' : '16px',
+            zIndex: 20,
+          }}
         >
-          End Session
-        </Button>
-      </Group>
+          <Group justify="space-between">
+            <Text size='md' fw={700}>Question {selectedQuestion}</Text>
+            <X size={20} onClick={() => setModal(false)} style={{
+              cursor: "pointer"
+            }} />
+          </Group>
+          <Text mb="15px">{selectedParticipant?.name}</Text>
+          <SegmentedControl
+            fullWidth
+            value={answer}
+            onChange={(val) => setAnswer(val as "correct" | "wrong")}
+            data={[
+              { label: "Correct", value: "correct" },
+              { label: "Wrong", value: "wrong" },
+            ]}
+          />
+          <Button fullWidth color="blue" mt="md" onClick={() => {
+            setModal(false);
+            saveAnswer();
+          }}>
+            Submit & Lock
+          </Button>
+        </Paper>
+      )}
+
+      <Stack mt="xl">
+        <Text c={sessionEnded ? 'red' : 'dimmed'}>
+          {sessionEnded ? 'Session ended. Answers are locked.' : 'Session active. You can leave and continue later.'}
+        </Text>
+        <Group justify="right">
+          {sessionEnded ? null : (
+            <>
+              <Button
+                color="blue"
+                size="lg"
+                onClick={() => navigate('/participants')}
+              >
+                Pause Session
+              </Button>
+              <Button
+                color="red"
+                size="lg"
+                onClick={handleEndSession}
+              >
+                End Session
+              </Button>
+            </>
+          )}
+        </Group>
+      </Stack>
     </Container>
   )
 }

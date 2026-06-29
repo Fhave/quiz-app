@@ -29,6 +29,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return stored ? Number(stored) : 0;
   });
 
+  const [sessionEnded, setSessionEnded] = useState<boolean>(() => {
+    const stored = localStorage.getItem("sessionEnded");
+    return stored ? stored === "true" : false;
+  });
+
   useEffect(() => {
     localStorage.setItem("sessionId", sessionId?.toString() || "");
   }, [sessionId]);
@@ -55,6 +60,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     );
   }, [sessionQuestionCount]);
 
+  useEffect(() => {
+    localStorage.setItem("sessionEnded", sessionEnded.toString());
+  }, [sessionEnded]);
+
   return (
     <SessionContext.Provider
       value={{
@@ -63,12 +72,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         sessionParticipants,
         sessionAnswers,
         sessionQuestionCount,
+        sessionEnded,
 
         setSessionId,
         setSessionName,
         setSessionParticipants,
         setSessionAnswers,
         setSessionQuestionCount,
+        setSessionEnded,
       }}
     >
       {children}

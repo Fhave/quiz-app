@@ -30,12 +30,14 @@ export type SessionContextType = {
   sessionParticipants: SessionParticipant[];
   sessionAnswers: SessionAnswer[];
   sessionQuestionCount: number;
+  sessionEnded: boolean;
 
   setSessionId: (id: number | null) => void;
   setSessionName: (name: string) => void;
   setSessionParticipants: (participants: SessionParticipant[]) => void;
   setSessionAnswers: (answers: SessionAnswer[]) => void;
   setSessionQuestionCount: (count: number) => void;
+  setSessionEnded: (ended: boolean) => void;
 };
 
 export type Session = {
@@ -43,6 +45,7 @@ export type Session = {
   title: string;
   createdAt: number;
   questionCount?: number;
+  ended?: boolean;
 };
 
 export type Answer = {

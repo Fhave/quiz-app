@@ -39,6 +39,7 @@ function Home() {
     setSessionName,
     setSessionParticipants,
     setSessionQuestionCount,
+    setSessionEnded,
   } = useSession();
   const isLargeScreen = useMediaQuery('(min-width: 768px)');
 
@@ -120,6 +121,7 @@ function Home() {
       setSessionName(name);
       setSessionParticipants(createdParticipants);
       setSessionQuestionCount(questionCount);
+      setSessionEnded(false);
 
       setName("");
       setParticipants([]);
@@ -149,7 +151,8 @@ function Home() {
       setSessionId(session.id);
       setSessionName(session.title);
       setSessionParticipants(participants);
-      setSessionQuestionCount(sessionData.questionCount);
+      setSessionQuestionCount(sessionData?.questionCount ?? 25);
+      setSessionEnded(sessionData?.ended ?? false);
 
       navigate("/track");
     } catch (error) {
@@ -274,7 +277,7 @@ function Home() {
                 backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff",
               }}
             >
-              <Group justify="space-between">
+              <Group justify="space-between" align="center">
                 <Stack gap={4}>
                   <Text fw={600}>{session.title}</Text>
                   <Text size="xs" c="dimmed">
@@ -282,14 +285,19 @@ function Home() {
                   </Text>
                 </Stack>
 
-                <Badge
-                  color="blue"
-                  variant="light"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleViewSession(session)}
-                >
-                  VIEW
-                </Badge>
+                <Group>
+                  <Badge color={session.ended ? 'gray' : 'green'} variant="light">
+                    {session.ended ? 'Ended' : 'Paused'}
+                  </Badge>
+                  <Badge
+                    color="blue"
+                    variant="light"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleViewSession(session)}
+                  >
+                    VIEW
+                  </Badge>
+                </Group>
               </Group>
             </Paper>
           ))
