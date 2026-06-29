@@ -1,11 +1,15 @@
 import { initDB } from './db';
 import { type Session } from '../type';
 
-export async function createSession(title: string): Promise<number> {
+export async function createSession(
+  title: string,
+  questionCount: number,
+): Promise<number> {
   const db = await initDB;
   const id = await db.add('sessions', {
     title,
     createdAt: Date.now(),
+    questionCount,
   });
   return Number(id);
 }

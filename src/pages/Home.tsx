@@ -12,13 +12,14 @@ import {
   Button,
   Box,
   Modal,
+  NumberInput,
 } from "@mantine/core";
 import { Edit, X, PlusCircle, CirclePlay } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
 import { useHeader } from "../context/HeaderContext";
 import { useSession } from "../context/SessionContext";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { createSession, getSessions } from "../services/sessions";
+import { createSession, getSession, getSessions } from "../services/sessions";
 import { createParticipants } from "../services/participants";
 import { getParticipants } from "../services/participants";
 import { notifications } from "@mantine/notifications";
@@ -33,10 +34,16 @@ function Home() {
   const { colorScheme } = useMantineColorScheme();
   const { setTitle } = useHeader();
   const navigate = useNavigate();
-  const { setSessionId, setSessionName, setSessionParticipants } = useSession();
+  const {
+    setSessionId,
+    setSessionName,
+    setSessionParticipants,
+    setSessionQuestionCount,
+  } = useSession();
   const isLargeScreen = useMediaQuery('(min-width: 768px)');
 
   const [opened, { open, close }] = useDisclosure(false);
+  const [questionCount, setQuestionCount] = useState<number | null>(null);
 
   useEffect(() => {
     const loadSessions = async (): Promise<void> => {
@@ -84,6 +91,15 @@ function Home() {
       return;
     }
 
+    if (!questionCount || questionCount < 1) {
+      notifications.show({
+        title: "Error",
+        message: "Please set the number of questions",
+        color: "red",
+      });
+      return;
+    }
+
     if (participants.length === 0) {
       notifications.show({
         title: "Error",
@@ -94,7 +110,7 @@ function Home() {
     }
 
     try {
-      const sessionId = await createSession(name);
+      const sessionId = await createSession(name, questionCount);
       const createdParticipants = await createParticipants(
         participants,
         sessionId,
@@ -103,6 +119,7 @@ function Home() {
       setSessionId(sessionId);
       setSessionName(name);
       setSessionParticipants(createdParticipants);
+      setSessionQuestionCount(questionCount);
 
       setName("");
       setParticipants([]);
@@ -127,9 +144,12 @@ function Home() {
     localStorage.clear();
     try {
       const participants = await getParticipants(session.id);
+      const sessionData = await getSession(session.id);
+
       setSessionId(session.id);
       setSessionName(session.title);
       setSessionParticipants(participants);
+      setSessionQuestionCount(sessionData.questionCount);
 
       navigate("/track");
     } catch (error) {
@@ -167,6 +187,23 @@ function Home() {
           value={name}
           onChange={handleSessionChange}
           rightSection={!name ? <Edit size={18} /> : null}
+        />
+      </Stack>
+
+      <Stack pt="md" gap={8}>
+        <Text size="sm" fw={700} c="dimmed">
+          NUMBER OF QUESTIONS
+        </Text>
+
+        <NumberInput
+          value={questionCount}
+          min={1}
+          max={100}
+          step={1}
+          onChange={(value) => setQuestionCount(value)}
+          parser={(value) => value?.replace(/\D/g, '') ?? ''}
+          formatter={(value) => value?.toString() ?? ''}
+          placeholder="Enter number of questions"
         />
       </Stack>
 
@@ -270,7 +307,7 @@ function Home() {
            style={{
              position: "absolute",
              bottom: "24px",
-             left: "274px", // 250px sidebar + 24px margin
+             left: "274px",
              right: "24px",
              zIndex: 20,
            }}

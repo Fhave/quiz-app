@@ -24,6 +24,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return stored ? JSON.parse(stored) : [];
   });
 
+  const [sessionQuestionCount, setSessionQuestionCount] = useState<number>(() => {
+    const stored = localStorage.getItem("sessionQuestionCount");
+    return stored ? Number(stored) : 0;
+  });
+
   useEffect(() => {
     localStorage.setItem("sessionId", sessionId?.toString() || "");
   }, [sessionId]);
@@ -43,6 +48,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("sessionAnswers", JSON.stringify(sessionAnswers));
   }, [sessionAnswers]);
 
+  useEffect(() => {
+    localStorage.setItem(
+      "sessionQuestionCount",
+      sessionQuestionCount.toString(),
+    );
+  }, [sessionQuestionCount]);
+
   return (
     <SessionContext.Provider
       value={{
@@ -50,11 +62,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         sessionName,
         sessionParticipants,
         sessionAnswers,
+        sessionQuestionCount,
 
         setSessionId,
         setSessionName,
         setSessionParticipants,
         setSessionAnswers,
+        setSessionQuestionCount,
       }}
     >
       {children}

@@ -22,7 +22,6 @@ function Layout() {
         style={{
           position: 'sticky',
           top: 0,
-          // zIndex: 5,
           background: colorScheme === 'dark' ? '#020617' : '#ffffff',
         }}
       >
@@ -51,7 +50,7 @@ function Layout() {
                  flex: 1,
                  overflowY: 'auto',
                  padding: '16px',
-                 paddingBottom: '64px', // Reduced from 80px to account for button
+                 paddingBottom: '64px',
                  backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#f1f5f9',
                }}
              >

@@ -14,7 +14,7 @@ export default defineConfig({
       includeAssets: [
         "**/*",
       ],
-      // registerType: 'autoUpdate',
+      registerType: 'autoUpdate',
       manifest: {
         name: 'Quiz Tracker',
         short_name: 'QuizTracker',

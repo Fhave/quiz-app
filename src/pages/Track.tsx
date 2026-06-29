@@ -23,7 +23,14 @@ import { useMediaQuery } from "@mantine/hooks";
 function Track() {
   const { setTitle } = useHeader();
   const navigate = useNavigate();
-  const { sessionId, sessionName, sessionParticipants, setSessionAnswers, sessionAnswers } = useSession();
+  const {
+    sessionId,
+    sessionName,
+    sessionParticipants,
+    sessionQuestionCount,
+    setSessionAnswers,
+    sessionAnswers,
+  } = useSession();
 
   const [answers, setAnswers] = useState<Record<number, AnswerType>>({});
   const [modal, setModal] = useState<boolean>(false);
@@ -87,12 +94,16 @@ function Track() {
     navigate('/participants');
   }
 
+  const questionCount = sessionQuestionCount;
+
   return (
     <Container>
       <Group justify="space-between">
         <Stack gap="xs">
           <Text size="sm" fw={700} c="dimmed">PROGRESS</Text>
-          <Text size="lg" fw={700}>Answered: {Object.keys(answers).length}/25</Text>
+          <Text size="lg" fw={700}>
+            Answered: {Object.keys(answers).length}/{questionCount}
+          </Text>
         </Stack>
         <NativeSelect
           value={selectedParticipant?.id?.toString() ?? ''}
@@ -119,7 +130,7 @@ function Track() {
           direction="row"
           wrap="wrap"
         >
-          {Array.from({ length: 25 }).map((_, i) => (
+          {Array.from({ length: questionCount }).map((_, i) => (
             <ActionIcon
               key={i}
               variant={"light"}
